@@ -113,7 +113,7 @@ public class Events {
         else if(firstchar.equals(shout_prefix)) {
             for(String pll : vplayerlist) {
                 EntityPlayer lvpl = FMLCommonHandler.instance().getMinecraftServerInstance().getPlayerList().getPlayerByUsername(pll);
-                if(checkDistance(player.getPosition(), lvpl.getPosition(), 30)){
+                if(checkDistance(player.getPosition(), lvpl.getPosition(), Integer.parseInt(shout_distance))){
                     playerHearList.add(lvpl);
                 }
 
@@ -130,7 +130,7 @@ public class Events {
         else if(firstchar.equals(whisp_prefix)) {
             for(String pll : vplayerlist) {
                 EntityPlayer lvpl = FMLCommonHandler.instance().getMinecraftServerInstance().getPlayerList().getPlayerByUsername(pll);
-                if(checkDistance(player.getPosition(), lvpl.getPosition(), 3)){
+                if(checkDistance(player.getPosition(), lvpl.getPosition(), Integer.parseInt(whisp_distance))){
                     playerHearList.add(lvpl);
                 }
 
@@ -147,7 +147,7 @@ public class Events {
         else if(firstchar.equals(action_prefix)) {
             for(String pll : vplayerlist) {
                 EntityPlayer lvpl = FMLCommonHandler.instance().getMinecraftServerInstance().getPlayerList().getPlayerByUsername(pll);
-                if(checkDistance(player.getPosition(), lvpl.getPosition(), 15)){
+                if(checkDistance(player.getPosition(), lvpl.getPosition(), Integer.parseInt(speak_distance))){
                     playerHearList.add(lvpl);
                 }
 
@@ -162,7 +162,7 @@ public class Events {
 
             for(String pll : vplayerlist) {
                 EntityPlayer lvpl = FMLCommonHandler.instance().getMinecraftServerInstance().getPlayerList().getPlayerByUsername(pll);
-                if(checkDistance(player.getPosition(), lvpl.getPosition(), 15)){
+                if(checkDistance(player.getPosition(), lvpl.getPosition(), Integer.parseInt(action_distance))){
                     playerHearList.add(lvpl);
                 }
 
