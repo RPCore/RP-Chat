@@ -25,6 +25,8 @@ public class RPChat {
     @Mod.Instance(RPChat.MODID)
     public static RPChat instance;
 
+    public static File configFile = new File(Minecraft.getMinecraft().mcDataDir+"/config/", "rp-chat.txt");
+
 
 
 
@@ -34,6 +36,7 @@ public class RPChat {
 
     public RPChat(){
         MinecraftForge.EVENT_BUS.register(new Events());
+
 
 
     }
@@ -46,6 +49,33 @@ public class RPChat {
 
         proxy.preInit(event.getSuggestedConfigurationFile());
 
+
+
+        if (Methods.FileReader(configFile).equals("notexist")) {
+            try (PrintWriter output = new PrintWriter(configFile)) {
+                output.println("Configuration des préfixes:");
+                output.println("HRP PREFIX:(");
+                output.println("SHOUT PREFIX:!");
+                output.println("WHISP PREFIX:$");
+                output.println("ACTION PREFIX:*");
+                output.println("");
+                output.println("Configuration des distances:");
+                output.println("SPEAK DISTANCE:15");
+                output.println("SHOUT DISTANCE:30");
+                output.println("WHISP DISTANCE:3");
+                output.println("ACTION DISTANCE:15");
+                output.println("");
+                output.println("Configuration des formats de chat:");
+                output.println("HRP FORMAT:&f{username} [HRP]: {msg}");
+                output.println("SPEAK FORMAT:&7{rpname} &fdit: {msg}");
+                output.println("SHOUT FORMAT:&7{rpname} &ccrie: {msg}");
+                output.println("WHISP FORMAT:&7{rpname} &2chuchotte: {msg}");
+                output.println("ACTION FORMAT:&a&o{rpname} {msg}");
+
+            } catch (FileNotFoundException e) {
+                e.printStackTrace();
+            }
+        }
 
 
 
