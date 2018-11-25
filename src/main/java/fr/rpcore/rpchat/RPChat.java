@@ -1,15 +1,24 @@
 package fr.rpcore.rpchat;
 
 import fr.rpcore.rpchat.events.Events.Events;
+import fr.rpcore.rpchat.packets.ChangeNameRP;
+import fr.rpcore.rpchat.packets.NameRPMessage;
+import fr.rpcore.rpchat.packets.NameRPMessageToClient;
 import fr.rpcore.rpchat.proxy.CommonProxy;
 import net.minecraft.client.Minecraft;
+import net.minecraft.server.MinecraftServer;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.common.config.Configuration;
+import net.minecraftforge.fml.common.FMLCommonHandler;
+import net.minecraftforge.fml.common.Loader;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.SidedProxy;
 import net.minecraftforge.fml.common.event.FMLInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLServerStartingEvent;
+import net.minecraftforge.fml.common.network.NetworkRegistry;
+import net.minecraftforge.fml.common.network.simpleimpl.SimpleNetworkWrapper;
+import net.minecraftforge.fml.relauncher.Side;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -25,7 +34,16 @@ public class RPChat {
     @Mod.Instance(RPChat.MODID)
     public static RPChat instance;
 
-    public static File configFile = new File(Minecraft.getMinecraft().mcDataDir+"/config/", "rp-chat.txt");
+
+
+
+
+    public static File getConfig(){
+        File configFile = new File(Loader.instance().getConfigDir(), "rp-chat.txt");
+        return configFile;
+    }
+
+
 
 
 
@@ -43,12 +61,21 @@ public class RPChat {
 
     public static Configuration cfg;
 
+    public static SimpleNetworkWrapper network;
+
     @Mod.EventHandler
     public void preInit(FMLPreInitializationEvent event)
     {
 
         proxy.preInit(event.getSuggestedConfigurationFile());
 
+        File configFile = RPChat.getConfig();
+
+        network  = NetworkRegistry.INSTANCE.newSimpleChannel(MODID+".CHANNEL");
+        network.registerMessage(NameRPMessage.Handler.class, NameRPMessage.class, 0, Side.SERVER);
+
+        network.registerMessage(NameRPMessageToClient.Handler.class, NameRPMessageToClient.class, 1, Side.CLIENT);
+        network.registerMessage(ChangeNameRP.Handler.class, ChangeNameRP.class, 2, Side.SERVER);
 
 
         if (Methods.FileReader(configFile).equals("notexist")) {

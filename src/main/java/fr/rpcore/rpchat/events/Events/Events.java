@@ -1,18 +1,30 @@
 package fr.rpcore.rpchat.events.Events;
 
 import com.mojang.realmsclient.gui.ChatFormatting;
+import com.trcgames.dbSynchronizer.DatabaseGetter;
+import com.trcgames.dbSynchronizer.database.DBFolder;
+import com.trcgames.dbSynchronizer.database.Database;
+
 import fr.rpcore.rpchat.Methods;
 import fr.rpcore.rpchat.RPChat;
+import fr.rpcore.rpchat.gui.NameRPGui;
+import fr.rpcore.rpchat.proxy.ClientProxy;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.network.NetHandlerPlayClient;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.server.management.PlayerList;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.text.TextComponentString;
+import net.minecraftforge.client.event.GuiOpenEvent;
+import net.minecraftforge.client.event.GuiScreenEvent;
 import net.minecraftforge.event.ServerChatEvent;
 import net.minecraftforge.fml.common.FMLCommonHandler;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
+import net.minecraftforge.fml.common.gameevent.InputEvent;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -22,7 +34,6 @@ import java.util.List;
 
 public class Events {
 
-    public static File configFile = new File(Minecraft.getMinecraft().mcDataDir+"/config/", "rp-chat.txt");
 
 
     boolean checkDistance(BlockPos loc1, BlockPos loc2, int maxDist){
@@ -54,17 +65,43 @@ public class Events {
 
 
     public static String getConfig(String configName){
-        configFile = new File(Minecraft.getMinecraft().mcDataDir+"/config/", "rp-chat.txt");
+
+        File configFile = RPChat.getConfig();
+
+        configFile = RPChat.getConfig();
         String result = Methods.ReadFileLine(configFile, configName);
         String result1 = result.replace(configName, "");
         return result1;
 
     }
 
+    @SideOnly(Side.CLIENT)
+    @SubscribeEvent
+    public void onKeyEvent(InputEvent.KeyInputEvent e) {
+
+
+        if (ClientProxy.keyRPChatGUI.isPressed()) {
+            keyTestTyped();
+        }
+    }
+
+
+@SideOnly(Side.CLIENT)
+    private void keyTestTyped() {
+
+
+        Minecraft.getMinecraft().displayGuiScreen(new NameRPGui());
+
+
+    }
+
     @SubscribeEvent
     public void playerChatEvent(ServerChatEvent e){
+        File configFile = RPChat.getConfig();
 
+        Database db = DatabaseGetter.getInstance(RPChat.MODID);
 
+        DBFolder folder = db.getPersistentFolder();
 
         System.out.println(Methods.ReadFileLine(configFile, "HRP PREFIX:"));
         System.out.println(Methods.FileReader(configFile));
@@ -96,6 +133,16 @@ public class Events {
         String msg = message.substring(1, x90);
         String firstchar = message.substring(0, 1);
         String name = e.getPlayer().getName();
+
+        String rpname = "[N'A PAS DE NOM RP]";
+        if(folder.getString("name."+name)!=null){
+            rpname = folder.getString("name."+name);
+
+        }else{
+            e.setCanceled(true);
+            e.getPlayer().sendMessage(new TextComponentString(ChatFormatting.RED+"Veuillez définir un nom rp ! (Touche RPChatGui dans vos controles)"));
+        }
+
         String[] vplayerlist = FMLCommonHandler.instance().getMinecraftServerInstance().getPlayerList().getOnlinePlayerNames();
         List<EntityPlayer> playerHearList = new ArrayList<>();
 
@@ -121,7 +168,7 @@ public class Events {
             for(String pll : vplayerlist) {
                 EntityPlayer lvpl = FMLCommonHandler.instance().getMinecraftServerInstance().getPlayerList().getPlayerByUsername(pll);
                 if(playerHearList.contains(lvpl)) {
-                    lvpl.sendMessage(new TextComponentString(replaceAllValues(shout_format, player.getName(), "fillwithrpname", msg)));
+                    lvpl.sendMessage(new TextComponentString(replaceAllValues(shout_format, player.getName(), rpname, msg)));
                 }
             }
         }
@@ -138,7 +185,7 @@ public class Events {
             for(String pll : vplayerlist) {
                 EntityPlayer lvpl = FMLCommonHandler.instance().getMinecraftServerInstance().getPlayerList().getPlayerByUsername(pll);
                 if(playerHearList.contains(lvpl)) {
-                    lvpl.sendMessage(new TextComponentString(replaceAllValues(whisp_format, player.getName(), "fillwithrpname", msg)));
+                    lvpl.sendMessage(new TextComponentString(replaceAllValues(whisp_format, player.getName(), rpname, msg)));
                 }
             }
         }
@@ -155,7 +202,7 @@ public class Events {
             for(String pll : vplayerlist) {
                 EntityPlayer lvpl = FMLCommonHandler.instance().getMinecraftServerInstance().getPlayerList().getPlayerByUsername(pll);
                 if(playerHearList.contains(lvpl)) {
-                    lvpl.sendMessage(new TextComponentString(replaceAllValues(action_format, player.getName(), "fillwithrpname", msg)));
+                    lvpl.sendMessage(new TextComponentString(replaceAllValues(action_format, player.getName(), rpname, msg)));
                 }
             }
         }else{
@@ -170,7 +217,7 @@ public class Events {
             for(String pll : vplayerlist) {
                 EntityPlayer lvpl = FMLCommonHandler.instance().getMinecraftServerInstance().getPlayerList().getPlayerByUsername(pll);
                 if(playerHearList.contains(lvpl)) {
-                    lvpl.sendMessage(new TextComponentString(replaceAllValues(speak_format, player.getName(), "fillwithrpname", msg)));
+                    lvpl.sendMessage(new TextComponentString(replaceAllValues(speak_format, player.getName(), rpname, message)));
                 }
             }
 
